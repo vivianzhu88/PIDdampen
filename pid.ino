@@ -19,25 +19,22 @@ void setup()
 }
 
 //gives servo value based on position in function
-double highOrLow(int val)
+int highOrLow(int val)
 {
-  double frac;
-  frac = (val % m_period)/m_period;
-  
   if ((val < m_period) || (val > m_period*3))
   {
-    return frac * m_lowV;
+    return (val % m_period)/m_period * m_lowV;
   }
   else
   {
-    return frac * m_highV;
+    return (val % m_period)/m_period * m_highV;
   }
 }
 
 void loop() 
 {
   int position = 0;
-  double value = 0.0;
+  int value = 0;
   startMillis = millis();
   int timeElapsed;
   char newKey;
