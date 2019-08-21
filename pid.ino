@@ -10,7 +10,7 @@ unsigned long currentMillis;
 const unsigned long period = 1000;  //the value is a number of milliseconds, ie 1 second
 int m_highV = 90;
 int m_lowV = 10;
-int m_period = 300;
+int m_period = 400;
 
 //servo setup
 void setup() 
@@ -19,34 +19,35 @@ void setup()
 }
 
 //gives servo value based on position in function
-int highOrLow(int val)
+double highOrLow(int val)
 {
+  double frac;
+  frac = (val % m_period)/m_period;
+  
   if ((val < m_period) || (val > m_period*3))
   {
-    return (val/m_period) * m_lowV;
+    return frac * m_lowV;
   }
   else
   {
-    return (val/m_period) * m_highV;
+    return frac * m_highV;
   }
 }
 
 void loop() 
 {
-  int shouldStop = 0;
   int position = 0;
-  int value = 0;
+  double value = 0.0;
   startMillis = millis();
   int timeElapsed;
   char newKey;
   
-  while(shouldStop <= 10)
+  while(true)
   {
     currentMillis = millis();
     timeElapsed = currentMillis - startMillis;
-    position = timeElapsed % (period*4);
+    position = timeElapsed % (m_period*4);
     value = highOrLow(position);
     servo.write(value);
-    shouldStop = timeElapsed/(period*4);
   }
 }
