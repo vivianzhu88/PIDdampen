@@ -1,8 +1,8 @@
-#include <Servo.h>
+#include <VarSpeedServo.h>
 #include <unistd.h>
 using namespace std;
 
-Servo servo;
+VarSpeedServo servo;
 
 //private variables
 unsigned long startMillis;
@@ -11,6 +11,7 @@ const unsigned long period = 1000;  //the value is a number of milliseconds, ie 
 int m_highV = 90;
 int m_lowV = 10;
 int m_period = 400;
+int servoSpeed = 30;
 
 //servo setup
 void setup() 
@@ -23,11 +24,11 @@ int highOrLow(int val)
 {
   if ((val < m_period) || (val > m_period*3))
   {
-    return (val % m_period)/m_period * m_lowV;
+    return m_lowV;
   }
   else
   {
-    return (val % m_period)/m_period * m_highV;
+    return m_highV;
   }
 }
 
@@ -45,6 +46,6 @@ void loop()
     timeElapsed = currentMillis - startMillis;
     position = timeElapsed % (m_period*4);
     value = highOrLow(position);
-    servo.write(value);
+    servo.write(value, servoSpeed);
   }
 }
