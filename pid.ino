@@ -1,17 +1,25 @@
-#include <VarSpeedServo.h>
+#include <Servo.h>
 #include <unistd.h>
 using namespace std;
 
-VarSpeedServo servo;
+Servo servo;
 
 //private variables
 unsigned long startMillis;
 unsigned long currentMillis;
+unsigned long prevMillis;
+
 const unsigned long period = 1000;  //the value is a number of milliseconds, ie 1 second
 int m_highV = 90;
 int m_lowV = 10;
 int m_period = 400;
 int servoSpeed = 30;
+
+float maxVel = 20.0; // in degrees per second
+float maxAcc = 5.0;  // in degrees per second ^2
+float setPerDeg = 180.0/255.0; // conversion for degrees to servo steps
+float currAngle = 0;
+float currVel = 0;
 
 //servo setup
 void setup() 
@@ -42,10 +50,29 @@ void loop()
   
   while(true)
   {
+    //update time since last loop and calc Delta
+    prevMillis = currentMillis;
     currentMillis = millis();
+    int timeDelta = currentMillis - prevMillis;
+
+    //figure out where we are in the setpoint waveform
     timeElapsed = currentMillis - startMillis;
     position = timeElapsed % (m_period*4);
     value = highOrLow(position);
-    servo.write(value, servoSpeed);
+
+    //calc our current velocity and check that we are not above max
+    currVel += maxAcc * timeDelta;
+    if(currVel > maxVel) currVel = maxVel;
+
+    //check which direction we need to go and calc the new angle, otherwise zero our velocity
+    if((int) currAngle != value ){
+      currAngle += copysign(currVel * timeDelta, currAngle - value);
+    }
+    else {
+      currAngle = value;
+      currVel =0;
+    }
+    //go to our new position
+    servo.write(currAngle);
   }
 }
