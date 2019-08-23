@@ -53,7 +53,7 @@ void loop()
     //update time since last loop and calc Delta
     prevMillis = currentMillis;
     currentMillis = millis();
-    int timeDelta = currentMillis - prevMillis;
+    float timeDelta = currentMillis - prevMillis / 1000.0;
 
     //figure out where we are in the setpoint waveform
     timeElapsed = currentMillis - startMillis;
