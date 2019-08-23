@@ -17,7 +17,7 @@ int servoSpeed = 30;
 
 float maxVel = 20.0; // in degrees per second
 float maxAcc = 5.0;  // in degrees per second ^2
-float setPerDeg = 180.0/255.0; // conversion for degrees to servo steps
+float stepPerDeg = 255.0/180.0; // conversion factor steps per degree
 float currAngle = 0;
 float currVel = 0;
 
@@ -73,6 +73,6 @@ void loop()
       currVel =0;
     }
     //go to our new position
-    servo.write(currAngle);
+    servo.write(currAngle * stepPerDeg);
   }
 }
