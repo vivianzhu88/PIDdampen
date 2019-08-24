@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <unistd.h>
+#include <math.h>
 using namespace std;
 
 Servo servo;
@@ -13,6 +14,10 @@ const unsigned long period = 1000;  //the value is a number of milliseconds, ie 
 int m_highV = 90;
 int m_lowV = 10;
 int m_period = 400;
+int m_ampFactor = 0.25;
+int m_dampFactor =  0.05;
+int m_dampPeriod = 0.16;
+int m_phaseOffset = 3.75;
 int servoSpeed = 30;
 
 float maxVel = 20.0; // in degrees per second
@@ -20,11 +25,13 @@ float maxAcc = 5.0;  // in degrees per second ^2
 float stepPerDeg = 255.0/180.0; // conversion factor steps per degree
 float currAngle = 0;
 float currVel = 0;
+float dampWave = 0;
 
 //servo setup
 void setup() 
 {
   servo.attach(10);
+  Serial.begin(9600);
 }
 
 //gives servo value based on position in function
@@ -66,13 +73,15 @@ void loop()
 
     //check which direction we need to go and calc the new angle, otherwise zero our velocity
     if((int) currAngle != value ){
-      currAngle += copysign(currVel * timeDelta, currAngle - value);
+      currAngle += copysign(currVel * timeDelta, value - currAngle);
+      dampWave = m_ampFactor * cos((timeDelta * m_dampPeriod) + m_phaseOffset) * exp(-m_dampFactor * timeDelta);
     }
     else {
       currAngle = value;
       currVel =0;
     }
     //go to our new position
-    servo.write(currAngle * stepPerDeg);
+    servo.write(currAngle * stepPerDeg + dampWave);
+    Serial.println(currAngle * stepPerDeg + dampWave);
   }
 }
