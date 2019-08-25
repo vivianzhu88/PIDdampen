@@ -14,11 +14,11 @@ unsigned long dampMillis;
 const unsigned long period = 1000;  //the value is a number of milliseconds, ie 1 second
 int m_highV = 90;
 int m_lowV = 10;
-int m_period = 400;
-int m_ampFactor = 0.25;
-int m_dampFactor =  0.05;
-int m_dampPeriod = 0.16;
-int m_phaseOffset = 3.75;
+int m_period = 4000;
+float m_ampFactor = 0.25;
+float m_dampFactor =  0.05;
+float m_dampPeriod = 0.16;
+float m_phaseOffset = 3.75;
 int servoSpeed = 30;
 
 float maxVel = 20.0; // in degrees per second
@@ -62,8 +62,8 @@ void loop()
     //update time since last loop and calc Delta
     prevMillis = currentMillis;
     currentMillis = millis();
-    float timeDelta = currentMillis - prevMillis / 1000.0;
-    float dampTimeDelta = currentMillis - dampMillis / 1000.0;
+    float timeDelta = (currentMillis - prevMillis) / 1000.0;
+    float dampTimeDelta = (currentMillis - dampMillis) / 1000.0;
 
     //figure out where we are in the setpoint waveform
     timeElapsed = currentMillis - startMillis;
@@ -75,17 +75,20 @@ void loop()
     if(currVel > maxVel) currVel = maxVel;
 
     //check which direction we need to go and calc the new angle, otherwise zero our velocity
-    if((int) currAngle != value ){
-      currAngle += copysign(currVel * timeDelta, value - currAngle);
+    if((int)currAngle != value ){
+      float distToTravel = currVel * timeDelta;
+      float direction = value - currAngle;
+      currAngle += copysign(distToTravel, direction);
       dampening = m_ampFactor * cos((dampTimeDelta * m_dampPeriod) + m_phaseOffset) * exp(-m_dampFactor * dampTimeDelta);
     }
     else {
       currAngle = value;
       currVel = 0;
       dampMillis = millis();
+      dampening = 0;
     }
     //go to our new position
     servo.write(currAngle * stepPerDeg + dampening);
-    Serial.println(dampening, 5);
+    Serial.println(currAngle * stepPerDeg + dampening);
   }
 }
