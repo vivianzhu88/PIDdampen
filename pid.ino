@@ -56,6 +56,7 @@ void loop()
   dampMillis = startMillis;
   int timeElapsed;
   char newKey;
+  int prevValue = 0;
   
   while(true)
   {
@@ -68,7 +69,9 @@ void loop()
     //figure out where we are in the setpoint waveform
     timeElapsed = currentMillis - startMillis;
     position = timeElapsed % (m_period*4);
+    prevValue = value;
     value = highOrLow(position);
+    if (prevValue != value) dampMillis = millis();
 
     //calc our current velocity and check that we are not above max
     currVel += maxAcc * timeDelta;
@@ -84,7 +87,6 @@ void loop()
     else {
       currAngle = value;
       currVel = 0;
-      dampMillis = millis();
       dampening = 0;
     }
     //go to our new position
