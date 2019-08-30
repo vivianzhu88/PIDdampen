@@ -71,8 +71,11 @@ void loop()
     position = timeElapsed % (m_period*4);
     prevValue = value;
     value = highOrLow(position);
-    if (prevValue != value) dampMillis = millis();
-
+    if (prevValue != value) 
+    {
+      dampMillis = millis();
+      int setpointDelta = value - prevValue; //need to use the amplitude of the change to scale the damping
+    }
     //calc our current velocity and check that we are not above max
     currVel += maxAcc * timeDelta;
     if(currVel > maxVel) currVel = maxVel;
@@ -82,7 +85,7 @@ void loop()
       float distToTravel = currVel * timeDelta;
       float direction = value - currAngle;
       currAngle += copysign(distToTravel, direction);
-      dampening = m_ampFactor * cos((dampTimeDelta * m_dampPeriod) + m_phaseOffset) * exp(-m_dampFactor * dampTimeDelta);
+      dampening = m_ampFactor * setpointDelta * cos((dampTimeDelta * m_dampPeriod) + m_phaseOffset) * exp(-m_dampFactor * dampTimeDelta);
     }
     else {
       currAngle = value;
