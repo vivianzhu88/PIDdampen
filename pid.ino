@@ -14,7 +14,7 @@ unsigned long dampMillis;
 const unsigned long period = 1000;  //the value is a number of milliseconds, ie 1 second
 int m_highV = 90;
 int m_lowV = 10;
-int m_period = 5000;
+int m_period = 300;
 float m_ampFactor = 0.25;
 float m_dampFactor =  0.05;
 float m_dampPeriod = 0.16;
@@ -22,7 +22,7 @@ float m_phaseOffset = 3.75;
 
 float maxVel = 20.0; // in degrees per second
 float maxAcc = 5.0;  // in degrees per second ^2
-float stepPerDeg = 255.0/180.0; // conversion factor steps per degree
+float stepPerDeg = 180.0/270.0; // conversion factor steps per degree
 float currAngle = 0;
 float currVel = 0;
 float dampening = 0;
@@ -93,7 +93,7 @@ void loop()
       dampening = 0;
     }
     //go to our new position
-    servo.write(currAngle * stepPerDeg + dampening);
-    Serial.println(currAngle * stepPerDeg + dampening);
+    servo.write((currAngle + dampening) * stepPerDeg);
+    Serial.println((currAngle + dampening) * stepPerDeg);
   }
 }
